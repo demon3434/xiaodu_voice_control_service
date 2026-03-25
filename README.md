@@ -71,24 +71,28 @@ INTERNAL_API_TOKEN=replace_with_random_internal_token
 - `INTERNAL_API_TOKEN`
   仅用于 HA 集成与本服务容器之间的内部鉴权，不填写给小度平台。
 
-## 第二步：构建镜像
+## 第二步：启动容器
 
-在仓库根目录执行：
+默认推荐直接使用 Docker Hub 镜像，不需要本地构建。
+
+直接执行：
 
 ```bash
-docker compose build --no-cache
+docker compose up -d
 ```
 
-或者：
+## 如需本地构建镜像
+
+如果你修改了源码，或希望自己构建镜像，再执行：
 
 ```bash
 docker build -t xiaodu_voice_control_service:latest .
 ```
 
-## 第三步：启动容器
+然后把 [docker-compose.yaml](E:\code\GitHub\xiaodu_voice_control_service\docker-compose.yaml) 里的镜像名改成你自己的本地 tag，或者临时这样运行：
 
 ```bash
-docker compose up -d
+docker run -d --name xiaodu-voice-control-service -p 8129:8129 --env-file .env -v $(pwd)/data:/data demon3434/xiaodu_voice_control_service:latest
 ```
 
 查看状态：
@@ -201,3 +205,11 @@ data/
 - internal_api_token
 
 因此，这个服务可以先单独启动，后续再由 HA 集成补齐小度运行参数。
+
+## 两个 docker-compose 文件的区别
+
+- `docker-compose.yaml`
+  默认方案。直接拉取 Docker Hub 上已经发布好的镜像，适合普通用户直接部署。
+
+- `docker-compose.build_by_self.yaml`
+  自行构建方案。适合你修改过源码，或希望在本机重新构建镜像后再启动容器。
