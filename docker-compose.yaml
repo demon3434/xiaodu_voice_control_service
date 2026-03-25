@@ -1,0 +1,17 @@
+services:
+  xiaodu-voice-control-service:
+    build: .
+    image: xiaodu_voice_control_service
+    container_name: xiaodu-voice-control-service
+    restart: unless-stopped
+    ports:
+      - "8129:8129"
+    environment:
+      TZ: Asia/Shanghai
+    env_file:
+      - .env
+    volumes:
+      - ./data:/data
+      - ./.env:/data/service.env
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro

@@ -1,0 +1,425 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>&#23567;&#24230;&#35821;&#38899;&#25511;&#21046;&#26381;&#21153;</title>
+  <style>
+    :root {
+      --bg: #f5f8fd;
+      --hero: #edf4ff;
+      --card: #ffffff;
+      --text: #183153;
+      --muted: #5f7b9f;
+      --line: #d7e2f1;
+      --primary: #1769e0;
+      --success: #19a55a;
+      --warning: #f2c766;
+      --warning-soft: #fff6d8;
+      --danger: #d14b39;
+      --shadow: 0 16px 40px rgba(27, 51, 84, 0.08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Segoe UI", "PingFang SC", "Microsoft YaHei", sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top right, rgba(57, 133, 255, 0.12), transparent 32%),
+        linear-gradient(180deg, var(--hero) 0, var(--bg) 220px);
+    }
+    .wrap {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 32px 20px 48px;
+    }
+    .hero {
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: flex-start;
+      margin-bottom: 24px;
+    }
+    h1 {
+      margin: 0;
+      font-size: 36px;
+      line-height: 1.15;
+    }
+    .hero p {
+      margin: 0;
+      color: var(--muted);
+      font-size: 16px;
+      line-height: 1.85;
+      max-width: 760px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(320px, 0.9fr);
+      gap: 22px;
+      align-items: start;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 24px;
+      padding: 24px;
+      box-shadow: var(--shadow);
+    }
+    h2 {
+      margin: 0 0 18px;
+      font-size: 24px;
+    }
+    .section-note {
+      margin: -4px 0 18px;
+      color: var(--muted);
+      line-height: 1.75;
+    }
+    .field {
+      margin-bottom: 18px;
+    }
+    .field-head {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 8px;
+    }
+    .field label {
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .env-key {
+      font-size: 12px;
+      color: #8ea5c3;
+      letter-spacing: .03em;
+    }
+    .hint {
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.75;
+      margin-top: 8px;
+    }
+    .hint .warn {
+      color: var(--danger);
+      font-weight: 700;
+    }
+    input, textarea {
+      width: 100%;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 14px 16px;
+      font: inherit;
+      color: var(--text);
+      background: #fff;
+      transition: border-color .16s ease, box-shadow .16s ease;
+    }
+    input:focus, textarea:focus {
+      outline: none;
+      border-color: #76a8ff;
+      box-shadow: 0 0 0 4px rgba(23, 105, 224, 0.08);
+    }
+    textarea {
+      min-height: 118px;
+      resize: vertical;
+    }
+    .mono {
+      font-family: Consolas, "Courier New", monospace;
+    }
+    .actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-top: 20px;
+    }
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 18px;
+      font: inherit;
+      font-weight: 700;
+      cursor: pointer;
+      transition: transform .12s ease, opacity .12s ease;
+    }
+    button:hover { transform: translateY(-1px); }
+    button:active { transform: translateY(0); }
+    .primary { background: var(--primary); color: #fff; }
+    .success { background: var(--success); color: #fff; }
+    .warning { background: #fff3cb; color: #7a5700; }
+    .ghost { background: #eaf1fb; color: var(--text); }
+    .status {
+      margin-top: 18px;
+      padding: 14px 16px;
+      border-radius: 16px;
+      background: #edf5ff;
+      color: #24508a;
+      white-space: pre-wrap;
+      line-height: 1.75;
+    }
+    .mini-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .mini-card {
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 16px 18px;
+      background: #fbfdff;
+    }
+    .mini-label {
+      color: var(--muted);
+      font-size: 13px;
+      margin-bottom: 8px;
+    }
+    .mini-value {
+      font-size: 16px;
+      font-weight: 700;
+      line-height: 1.5;
+      word-break: break-all;
+    }
+    .key-box {
+      border: 1px dashed var(--line);
+      border-radius: 18px;
+      padding: 18px;
+      background: #fbfdff;
+    }
+    .plain-block {
+      border-top: 1px solid var(--line);
+      padding: 16px 0 0;
+      margin-top: 16px;
+    }
+    .plain-item + .plain-item {
+      margin-top: 18px;
+    }
+    .plain-label {
+      font-size: 18px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .plain-value {
+      color: var(--text);
+      font-size: 18px;
+      line-height: 1.7;
+      word-break: break-all;
+    }
+    .tip-list {
+      display: grid;
+      gap: 10px;
+      margin-top: 18px;
+    }
+    .tip-item {
+      border-left: 3px solid #9dc0ff;
+      padding-left: 12px;
+      color: var(--muted);
+      line-height: 1.75;
+      font-size: 14px;
+    }
+    @media (max-width: 960px) {
+      .grid { grid-template-columns: 1fr; }
+      .mini-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="hero">
+      <div>
+        <h1>&#23567;&#24230;&#35821;&#38899;&#25511;&#21046;&#26381;&#21153;</h1>
+        <p>&#36825;&#37324;&#29992;&#20110;&#32500;&#25252;&#29420;&#31435;&#26381;&#21153;&#23481;&#22120;&#30340;&#26680;&#24515;&#36816;&#34892;&#21442;&#25968;&#65292;&#24182;&#29983;&#25104;&#23567;&#24230;&#20113;&#31471;&#21516;&#27493;&#25152;&#38656;&#30340;&#23494;&#38053;&#12290;&#39029;&#38754;&#21482;&#20445;&#30041;&#24120;&#29992;&#37197;&#32622;&#39033;&#65292;&#20854;&#20182;&#22266;&#23450;&#40664;&#35748;&#20540;&#30001;&#31243;&#24207;&#33258;&#21160;&#22788;&#29702;&#65292;&#38477;&#20302;&#39318;&#27425;&#37096;&#32626;&#26102;&#30340;&#29702;&#35299;&#25104;&#26412;&#12290;</p>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card">
+        <h2>&#26381;&#21153;&#21442;&#25968;</h2>
+        <p class="section-note">&#20248;&#20808;&#22635;&#20889;&#36825; 5 &#39033;&#21363;&#21487;&#12290;&#20445;&#23384;&#21518;&#20250;&#20889;&#20837; <span class="mono">/data/service.env</span>&#65292;&#28857;&#20987;&#8220;&#37325;&#26032;&#21152;&#36733;&#37197;&#32622;&#8221;&#21518;&#31435;&#21363;&#29983;&#25928;&#65292;&#26080;&#38656;&#25163;&#21160;&#37325;&#21551;&#23481;&#22120;&#12290;</p>
+
+        <div class="field">
+          <div class="field-head">
+            <label for="APP_BASE_URL">&#26381;&#21153;&#20844;&#32593;&#22320;&#22336;</label>
+            <span class="env-key">APP_BASE_URL</span>
+          </div>
+          <input id="APP_BASE_URL" placeholder="&#20363;&#22914;&#65306;https://ha.example.com:34343">
+          <div class="hint">&#23567;&#24230;&#24179;&#21488;&#20174;&#20844;&#32593;&#35775;&#38382;&#26412;&#26381;&#21153;&#26102;&#20351;&#29992;&#30340;&#22320;&#22336;&#65292;&#24517;&#39035;&#33021;&#20174;&#20114;&#32852;&#32593;&#35775;&#38382;&#21040;&#26412;&#23481;&#22120;&#12290;&#35831;&#22635;&#20889;&#23436;&#25972;&#21327;&#35758;&#22836;&#65292;&#36890;&#24120;&#20026; <span class="mono">https://</span> &#22320;&#22336;&#12290;</div>
+        </div>
+
+        <div class="field">
+          <div class="field-head">
+            <label for="HA_BASE_URL">HA &#20869;&#32593;&#22320;&#22336;</label>
+            <span class="env-key">HA_BASE_URL</span>
+          </div>
+          <input id="HA_BASE_URL" placeholder="&#20363;&#22914;&#65306;http://192.168.6.10:8123">
+          <div class="hint">&#26381;&#21153;&#23481;&#22120;&#35775;&#38382; Home Assistant API &#20351;&#29992;&#30340;&#22320;&#22336;&#12290;&#24314;&#35758;&#22635;&#20889;&#23481;&#22120;&#25152;&#22312;&#20027;&#26426;&#33021;&#30452;&#36830;&#30340;&#20869;&#32593;&#22320;&#22336;&#65292;&#36890;&#24120;&#27604;&#20844;&#32593;&#22320;&#22336;&#26356;&#31283;&#23450;&#12290;</div>
+        </div>
+
+        <div class="field">
+          <div class="field-head">
+            <label for="HA_REFRESH_TOKEN">HA &#21047;&#26032;&#20196;&#29260;</label>
+            <span class="env-key">HA_REFRESH_TOKEN</span>
+          </div>
+          <textarea id="HA_REFRESH_TOKEN" placeholder="&#31896;&#36148; Home Assistant &#21047;&#26032;&#20196;&#29260;"></textarea>
+          <div class="hint">&#29992;&#20110;&#26381;&#21153;&#23481;&#22120;&#25442;&#21462; Home Assistant &#30340;&#35775;&#38382;&#20196;&#29260;&#65292;&#20174;&#32780;&#25511;&#21046;&#35774;&#22791;&#12290;&#35831;&#31896;&#36148;&#23436;&#25972;&#23383;&#31526;&#20018;&#65292;&#19981;&#35201;&#25442;&#34892;&#12290;</div>
+        </div>
+
+        <div class="field">
+          <div class="field-head">
+            <label for="HA_CLIENT_ID">HA &#23458;&#25143;&#31471; ID</label>
+            <span class="env-key">HA_CLIENT_ID</span>
+          </div>
+          <input id="HA_CLIENT_ID" placeholder="&#20363;&#22914;&#65306;https://xiaodu-dbp.baidu.com">
+          <div class="hint"><span class="warn">&#24314;&#35758;&#20351;&#29992;&#40664;&#35748;&#20540;</span>&#12290;&#24403;&#21069;&#25512;&#33616;&#20445;&#25345;&#20026; <span class="mono">https://xiaodu-dbp.baidu.com</span>&#65292;&#29992;&#20110;&#37197;&#21512; HA &#21047;&#26032;&#20196;&#29260;&#25442;&#21462;&#35775;&#38382;&#20196;&#29260;&#12290;</div>
+        </div>
+
+        <div class="field">
+          <div class="field-head">
+            <label for="INTERNAL_API_TOKEN">&#20869;&#37096;&#37492;&#26435;&#20196;&#29260;</label>
+            <span class="env-key">INTERNAL_API_TOKEN</span>
+          </div>
+          <textarea id="INTERNAL_API_TOKEN" placeholder="&#24314;&#35758;&#20351;&#29992;&#38543;&#26426;&#38271;&#23383;&#31526;&#20018;"></textarea>
+          <div class="hint">&#20165;&#29992;&#20110; HA &#38598;&#25104;&#19982;&#26412;&#26381;&#21153;&#23481;&#22120;&#20043;&#38388;&#30340;&#20869;&#37096;&#25509;&#21475;&#37492;&#26435;&#65292;&#19981;&#22635;&#20889;&#32473;&#23567;&#24230;&#24179;&#21488;&#12290;&#24314;&#35758;&#20351;&#29992;&#38543;&#26426;&#38271;&#23383;&#31526;&#20018;&#65292;&#24182;&#19982; HA &#20391;&#37197;&#32622;&#20445;&#25345;&#19968;&#33268;&#12290;</div>
+        </div>
+
+        <div class="actions">
+          <button class="primary" onclick="saveConfig()">&#20445;&#23384;&#37197;&#32622;</button>
+          <button class="warning" onclick="reloadConfig()">&#37325;&#26032;&#21152;&#36733;&#37197;&#32622;</button>
+        </div>
+        <div id="configStatus" class="status">&#27491;&#22312;&#21152;&#36733;&#37197;&#32622;...</div>
+      </div>
+
+      <div class="card">
+        <h2>&#23494;&#38053;&#19982;&#36816;&#34892;&#29366;&#24577;</h2>
+        <p class="section-note">&#39318;&#27425;&#37096;&#32626;&#26102;&#65292;&#22914;&#26524; <span class="mono">/data/xiaodu_private_key.pem</span> &#19981;&#23384;&#22312;&#65292;&#26381;&#21153;&#20250;&#33258;&#21160;&#29983;&#25104;&#12290;&#20320;&#20063;&#21487;&#20197;&#22312;&#36825;&#37324;&#25163;&#21160;&#37325;&#24314;&#12290;</p>
+
+        <div class="mini-grid">
+          <div class="mini-card">
+            <div class="mini-label">&#35774;&#22791;&#25968;&#37327;</div>
+            <div id="deviceCount" class="mini-value">--</div>
+          </div>
+          <div class="mini-card">
+            <div class="mini-label">&#35774;&#22791;&#25991;&#20214;</div>
+            <div id="devicePath" class="mini-value mono">--</div>
+          </div>
+        </div>
+
+        <div class="key-box">
+          <div class="plain-block">
+            <div class="plain-item">
+              <div class="plain-label">&#31169;&#38053;&#36335;&#24452;</div>
+              <div id="private_key_path" class="plain-value mono">--</div>
+            </div>
+            <div class="plain-item">
+              <div class="plain-label">&#20844;&#38053;&#36335;&#24452;</div>
+              <div id="public_key_path" class="plain-value mono">--</div>
+            </div>
+          </div>
+          <div class="field">
+            <div class="field-head">
+              <label>&#20844;&#38053;&#20869;&#23481;</label>
+            </div>
+            <textarea id="public_key_pem" class="mono" readonly></textarea>
+            <div class="hint">&#20844;&#38053;&#21487;&#29992;&#20110;&#38656;&#35201;&#23637;&#31034;&#25110;&#22797;&#21046;&#30340;&#22330;&#26223;&#65307;&#26381;&#21153;&#36816;&#34892;&#30495;&#27491;&#20381;&#36182;&#30340;&#26159;&#31169;&#38053;&#25991;&#20214;&#12290;</div>
+          </div>
+          <div class="actions">
+            <button class="success" onclick="generateKeys(false)">&#29983;&#25104;&#23494;&#38053;</button>
+            <button class="ghost" onclick="generateKeys(true)">&#37325;&#24314;&#23494;&#38053;</button>
+            <button class="ghost" onclick="copyPublicKey()">&#22797;&#21046;&#20844;&#38053;</button>
+            <button class="ghost" onclick="downloadPublicKey()">&#19979;&#36733;&#20844;&#38053;</button>
+          </div>
+        </div>
+
+        <div id="keyStatus" class="status">&#27491;&#22312;&#26816;&#26597;&#23494;&#38053;&#29366;&#24577;...</div>
+
+        <div class="tip-list">
+          <div class="tip-item">&#22266;&#23450;&#40664;&#35748;&#20540;&#24050;&#20174;&#20027;&#34920;&#21333;&#31227;&#38500;&#65292;&#21253;&#25324; <span class="mono">XIAODU_CLIENT_ID=dueros</span>&#12289;&#23567;&#24230;&#22238;&#35843;&#30333;&#21517;&#21333;&#21644;&#31169;&#38053;&#40664;&#35748;&#36335;&#24452;&#65292;&#36991;&#20813;&#39318;&#27425;&#37096;&#32626;&#26102;&#30475;&#21040;&#36807;&#22810;&#19981;&#38656;&#35201;&#25163;&#25913;&#30340;&#21442;&#25968;&#12290;</div>
+          <div class="tip-item">&#22914;&#26524;&#20320;&#25913;&#21160;&#20102; <span class="mono">service.env</span> &#25110;&#23494;&#38053;&#25991;&#20214;&#65292;&#35831;&#28857;&#20987;&#8220;&#37325;&#26032;&#21152;&#36733;&#37197;&#32622;&#8221;&#65292;&#26381;&#21153;&#20250;&#37325;&#26032;&#35835;&#21462;&#21442;&#25968;&#24182;&#31435;&#21363;&#29983;&#25928;&#12290;</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const MANAGED_FIELDS = [
+      'APP_BASE_URL',
+      'HA_BASE_URL',
+      'HA_REFRESH_TOKEN',
+      'HA_CLIENT_ID',
+      'INTERNAL_API_TOKEN',
+    ];
+
+    async function loadConfig() {
+      const res = await fetch('/manage/api/config');
+      const data = await res.json();
+      for (const key of MANAGED_FIELDS) {
+        const el = document.getElementById(key);
+        if (el) el.value = (data.env || {})[key] || '';
+      }
+      renderKeyStatus(data.keys || {});
+      const devices = data.devices || {};
+      document.getElementById('deviceCount').textContent = String(devices.count ?? 0);
+      document.getElementById('devicePath').textContent = devices.path || '--';
+      document.getElementById('configStatus').textContent = '已加载当前 service.env 配置。';
+    }
+
+    function renderKeyStatus(keys) {
+      document.getElementById('private_key_path').textContent = keys.private_key_path || '--';
+      document.getElementById('public_key_path').textContent = keys.public_key_path || '--';
+      document.getElementById('public_key_pem').value = keys.public_key_pem || '';
+      document.getElementById('keyStatus').textContent =
+        `私钥：${keys.private_key_exists ? '已存在' : '不存在'}\n公钥：${keys.public_key_exists ? '已存在' : '不存在'}`;
+    }
+
+    async function saveConfig() {
+      const env = {};
+      for (const id of MANAGED_FIELDS) {
+        const el = document.getElementById(id);
+        if (el) env[id] = el.value || '';
+      }
+      const res = await fetch('/manage/api/config', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({env}),
+      });
+      const data = await res.json();
+      document.getElementById('configStatus').textContent = data.message || JSON.stringify(data, null, 2);
+      renderKeyStatus(data.keys || {});
+    }
+
+    async function generateKeys(force) {
+      const res = await fetch('/manage/api/keys/generate', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({force}),
+      });
+      const data = await res.json();
+      renderKeyStatus(data);
+      document.getElementById('keyStatus').textContent =
+        (data.status === 'generated' ? '已生成新的密钥对。' : '当前私钥已存在，未覆盖。') +
+        `\n私钥路径：${data.private_key_path}\n公钥路径：${data.public_key_path}`;
+    }
+
+    async function reloadConfig() {
+      const res = await fetch('/manage/api/reload', {method: 'POST'});
+      const data = await res.json();
+      document.getElementById('configStatus').textContent = data.message || '服务正在重新加载配置...';
+      setTimeout(() => window.location.reload(), 5000);
+    }
+
+    async function copyPublicKey() {
+      const value = document.getElementById('public_key_pem').value || '';
+      if (!value) return;
+      await navigator.clipboard.writeText(value);
+      document.getElementById('keyStatus').textContent = '公钥已复制到剪贴板。';
+    }
+
+    function downloadPublicKey() {
+      window.open('/manage/api/keys/public', '_blank');
+    }
+
+    loadConfig().catch((err) => {
+      document.getElementById('configStatus').textContent = '加载失败：' + err;
+      document.getElementById('keyStatus').textContent = '密钥状态加载失败：' + err;
+    });
+  </script>
+</body>
+</html>
