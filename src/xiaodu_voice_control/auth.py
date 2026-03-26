@@ -2,6 +2,8 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 
+import httpx
+
 from .config import Settings
 from .ha_client import HomeAssistantClient
 
@@ -56,7 +58,10 @@ async def validate_bind_user(
         return BoundUser(username=username, subject=f"local:{username}")
 
     if settings.auth_mode == "homeassistant":
-        ok = await ha_client.validate_user_credentials(username, password, settings.app_base_url)
+        try:
+            ok = await ha_client.validate_user_credentials(username, password, settings.app_base_url)
+        except httpx.HTTPError as exc:
+            raise RuntimeError(f"Home Assistant 登录请求失败: {exc}") from exc
         if not ok:
             raise ValueError("用户名或密码错误")
         return BoundUser(username=username, subject=f"ha:{username}")

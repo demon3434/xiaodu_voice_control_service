@@ -84,6 +84,8 @@ class HomeAssistantClient:
                 json=login_flow_payload,
                 headers={"Content-Type": "application/json"},
             )
+            if response.status_code >= 400:
+                raise RuntimeError(f"HA login_flow start failed: {response.status_code} {response.text[:200]}")
             response.raise_for_status()
             flow = response.json()
             flow_id = flow.get("flow_id")
@@ -99,6 +101,10 @@ class HomeAssistantClient:
                 json=login_payload,
                 headers={"Content-Type": "application/json"},
             )
+            if response.status_code in (400, 401, 403):
+                return False
+            if response.status_code >= 400:
+                raise RuntimeError(f"HA login_flow submit failed: {response.status_code} {response.text[:200]}")
             response.raise_for_status()
             result = response.json()
             return bool(result.get("result"))

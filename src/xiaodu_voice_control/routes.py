@@ -407,6 +407,10 @@ def build_router(
             bound_user = await validate_bind_user(settings, ha_client, username, password)
         except ValueError as exc:
             return {"code": "error", "Msg": str(exc)}
+        except RuntimeError as exc:
+            return {"code": "error", "Msg": str(exc)}
+        except Exception as exc:  # pragma: no cover
+            return {"code": "error", "Msg": f"授权服务异常: {exc}"}
 
         code = token_store.issue_authorization_code(
             subject=bound_user.subject,

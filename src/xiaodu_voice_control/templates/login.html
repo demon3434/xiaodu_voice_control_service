@@ -12,7 +12,8 @@
     label { display: block; margin: 16px 0 8px; font-weight: 600; color: #333; }
     input { width: 100%; box-sizing: border-box; padding: 12px 14px; border: 1px solid #d9e2ec; border-radius: 10px; font-size: 16px; }
     button { width: 100%; margin-top: 22px; border: 0; border-radius: 10px; background: #22c55e; color: #fff; padding: 14px 16px; font-size: 16px; cursor: pointer; }
-    .msg { margin-top: 14px; color: #d14343; min-height: 24px; }
+    button:disabled { opacity: .7; cursor: wait; }
+    .msg { margin-top: 14px; color: #d14343; min-height: 24px; white-space: pre-wrap; }
     .hint { font-size: 13px; color: #7b8794; margin-top: 18px; }
   </style>
 </head>
@@ -25,7 +26,7 @@
       <input id="username" name="username" type="text" autocomplete="username" required>
       <label for="password">密码</label>
       <input id="password" name="password" type="password" autocomplete="current-password" required>
-      <button type="submit">登录并授权</button>
+      <button id="submit-btn" type="submit">登录并授权</button>
       <div id="msg" class="msg"></div>
     </form>
     <div class="hint">默认可使用本服务自己的绑定账号；如果启用了 HA 登录模式，也可以使用 HA 用户名密码。</div>
@@ -33,17 +34,34 @@
   <script>
     const form = document.getElementById('login-form');
     const msg = document.getElementById('msg');
+    const submitBtn = document.getElementById('submit-btn');
+
     form.addEventListener('submit', async (event) => {
       event.preventDefault();
       msg.textContent = '';
-      const data = new FormData(form);
-      const response = await fetch(window.location.href, { method: 'POST', body: data });
-      const payload = await response.json();
-      if (payload.code === 'ok' && payload.data && payload.data.location) {
-        window.location.href = payload.data.location;
-        return;
+      submitBtn.disabled = true;
+      submitBtn.textContent = '正在授权，请稍候';
+      try {
+        const data = new FormData(form);
+        const response = await fetch(window.location.href, { method: 'POST', body: data });
+        const text = await response.text();
+        let payload = {};
+        try {
+          payload = text ? JSON.parse(text) : {};
+        } catch (error) {
+          throw new Error(`服务返回了非 JSON 内容: ${text.slice(0, 160)}`);
+        }
+        if (payload.code === 'ok' && payload.data && payload.data.location) {
+          window.location.href = payload.data.location;
+          return;
+        }
+        msg.textContent = payload.Msg || payload.detail || '授权失败';
+      } catch (error) {
+        msg.textContent = error && error.message ? error.message : '网络异常，请稍后重试';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = '登录并授权';
       }
-      msg.textContent = payload.Msg || payload.detail || '授权失败';
     });
   </script>
 </body>
