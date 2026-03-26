@@ -351,6 +351,11 @@ def build_router(
             internal_api_token=internal_api_token,
             open_uids=open_uids,
         )
+        token_store.replace_links(
+            client_id=settings.xiaodu_client_id,
+            open_uids=open_uids,
+            bot_id=skill_id,
+        )
         linked_open_uids = []
         for link in token_store.list_links(settings.xiaodu_client_id):
             if skill_id and link.bot_id != skill_id:

@@ -225,6 +225,37 @@ class TokenStore:
                 links.append(XiaoDuLinkRecord(**record))
             return links
 
+    def replace_links(
+        self,
+        *,
+        client_id: str,
+        open_uids: list[str],
+        bot_id: str = "",
+    ) -> list[XiaoDuLinkRecord]:
+        with self._lock:
+            existing = self._data.setdefault("links", {})
+            retained = {
+                key: value
+                for key, value in existing.items()
+                if value.get("client_id") != client_id
+            }
+            normalized_open_uids = list(dict.fromkeys(str(item).strip() for item in open_uids if str(item).strip()))
+            records: list[XiaoDuLinkRecord] = []
+            for open_uid in normalized_open_uids:
+                record = XiaoDuLinkRecord(
+                    client_id=client_id,
+                    open_uid=open_uid,
+                    bot_id=bot_id.strip(),
+                    username="",
+                    subject="",
+                    updated_at=self._iso(self._now()),
+                )
+                retained[f"{client_id}:{open_uid}"] = asdict(record)
+                records.append(record)
+            self._data["links"] = retained
+            self._save_locked()
+            return records
+
     def get_service_config(self) -> dict:
         with self._lock:
             config = dict(self._data.get("service_config", {}) or {})
