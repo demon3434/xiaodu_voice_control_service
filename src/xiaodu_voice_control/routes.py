@@ -139,12 +139,13 @@ async def _sync_xiaodu_cloud(
         if link.open_uid not in grouped[current_bot_id]:
             grouped[current_bot_id].append(link.open_uid)
 
-    for open_uid in runtime_config.get("open_uids", []) or []:
-        if not open_uid:
-            continue
-        grouped.setdefault(skill_id, [])
-        if open_uid not in grouped[skill_id]:
-            grouped[skill_id].append(open_uid)
+    if not grouped:
+        for open_uid in runtime_config.get("open_uids", []) or []:
+            if not open_uid:
+                continue
+            grouped.setdefault(skill_id, [])
+            if open_uid not in grouped[skill_id]:
+                grouped[skill_id].append(open_uid)
 
     if not grouped:
         return {"status": "skipped", "reason": "no linked xiaodu users", "results": []}
@@ -325,11 +326,12 @@ def build_router(
     async def internal_get_settings(x_internal_token: str | None = Header(default=None)) -> dict:
         _validate_internal_token(settings, token_store, x_internal_token)
         config = token_store.get_service_config()
-        open_uids = list(config.get("open_uids") or [])
+        linked_open_uids = []
         for link in token_store.list_links(settings.xiaodu_client_id):
-            if link.open_uid not in open_uids:
-                open_uids.append(link.open_uid)
-        if open_uids != config.get("open_uids", []):
+            if link.open_uid not in linked_open_uids:
+                linked_open_uids.append(link.open_uid)
+        open_uids = linked_open_uids or list(config.get("open_uids") or [])
+        if open_uids != list(config.get("open_uids") or []):
             config = token_store.update_service_config(open_uids=open_uids)
         return config
 
@@ -349,9 +351,9 @@ def build_router(
             internal_api_token=internal_api_token,
             open_uids=open_uids,
         )
-        merged_open_uids = list(config.get("open_uids") or [])
+        linked_open_uids = []
         for link in token_store.list_links(settings.xiaodu_client_id):
-            if skill_id and link.open_uid in merged_open_uids and link.bot_id != skill_id:
+            if skill_id and link.bot_id != skill_id:
                 token_store.upsert_link(
                     client_id=link.client_id,
                     open_uid=link.open_uid,
@@ -359,9 +361,11 @@ def build_router(
                     username=link.username,
                     subject=link.subject,
                 )
-            if link.open_uid not in merged_open_uids:
-                merged_open_uids.append(link.open_uid)
-        return token_store.update_service_config(open_uids=merged_open_uids)
+            if link.open_uid not in linked_open_uids:
+                linked_open_uids.append(link.open_uid)
+        if linked_open_uids:
+            return token_store.update_service_config(open_uids=linked_open_uids)
+        return config
 
     @router.get("/xiaoduvc/auth/authorize", response_class=HTMLResponse)
     @router.get("/oauth/authorize", response_class=HTMLResponse)
@@ -398,28 +402,6 @@ def build_router(
             bound_user = await validate_bind_user(settings, ha_client, username, password)
         except ValueError as exc:
             return {"code": "error", "Msg": str(exc)}
-
-        open_uid = (
-            request.query_params.get("open_id", "")
-            or request.query_params.get("openId", "")
-            or request.query_params.get("dueros_uid", "")
-            or request.query_params.get("openUid", "")
-            or request.query_params.get("open_uid", "")
-            or (state or "")
-        ).strip()
-        bot_id = str(token_store.get_service_config().get("xiaodu_skill_id") or settings.xiaodu_skill_id).strip()
-        if open_uid and bot_id:
-            token_store.upsert_link(
-                client_id=client_id,
-                open_uid=open_uid,
-                bot_id=bot_id,
-                username=bound_user.username,
-                subject=bound_user.subject,
-            )
-            current_open_uids = list(token_store.get_service_config().get("open_uids") or [])
-            if open_uid not in current_open_uids:
-                current_open_uids.append(open_uid)
-                token_store.update_service_config(open_uids=current_open_uids)
 
         code = token_store.issue_authorization_code(
             subject=bound_user.subject,
