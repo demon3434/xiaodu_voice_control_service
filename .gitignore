@@ -3,3 +3,6 @@ data/*
 !data/.gitkeep
 __pycache__/
 *.pyc
+.codex_tmp_push_dockerhub.sh
+.codex_tmp_remote_build_push.sh
+.codex_tmp_service_release.zip
