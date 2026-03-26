@@ -88,6 +88,13 @@ def _numeric(value: Any) -> int | float:
         return 0
 
 
+def _rounded_numeric(value: Any, digits: int = 1) -> int | float:
+    numeric = _numeric(value)
+    if isinstance(numeric, float):
+        return float(f"{numeric:.{digits}f}")
+    return numeric
+
+
 def state_to_property(property_name: str, state: dict[str, Any]) -> dict[str, Any]:
     raw_state = state.get("state")
     attrs = state.get("attributes", {})
@@ -97,10 +104,10 @@ def state_to_property(property_name: str, state: dict[str, Any]) -> dict[str, An
         value = "ON" if str(raw_state).lower() in {"on", "open", "opening", "true"} else "OFF"
         scale = ""
     elif property_name == "temperatureReading":
-        value = _numeric(attrs.get("current_temperature", raw_state))
+        value = _rounded_numeric(attrs.get("current_temperature", raw_state), 1)
         scale = "CELSIUS"
     elif property_name == "humidity":
-        value = _numeric(attrs.get("current_humidity", attrs.get("humidity", raw_state)))
+        value = int(round(_numeric(attrs.get("current_humidity", attrs.get("humidity", raw_state)))))
         scale = "%"
     elif property_name == "brightness":
         brightness = attrs.get("brightness")

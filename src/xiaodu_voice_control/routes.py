@@ -29,6 +29,12 @@ from .protocol import (
 from .token_store import TokenStore
 
 
+ATTRIBUTE_LIST_QUERY_RESPONSES = {
+    "GetHumidityRequest",
+    "GetTargetHumidityRequest",
+}
+
+
 def _load_login_html() -> str:
     template_path = Path(__file__).resolve().parent / "templates" / "login.html"
     return template_path.read_text(encoding="utf-8")
@@ -547,6 +553,11 @@ def build_router(
                         "payload": {"attributes": attrs},
                     }
                 prop = state_to_property(props[0], state)
+                if request_name in ATTRIBUTE_LIST_QUERY_RESPONSES:
+                    return {
+                        "header": build_response_header(body, request_name.replace("Request", "Response")),
+                        "payload": {"attributes": [prop]},
+                    }
                 return {
                     "header": build_response_header(body, request_name.replace("Request", "Response")),
                     "payload": {
