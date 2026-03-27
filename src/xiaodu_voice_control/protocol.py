@@ -76,7 +76,9 @@ def _numeric(value: Any) -> int | float:
         return value
     if value is None:
         return 0
-    text = str(value).strip().lower().replace("%", "").replace("℃", "").replace("°c", "")
+    text = str(value).strip().lower().replace("%", "")
+    for token in ("celsius", "ppm", "ug/m3", "µg/m3", "μg/m3"):
+        text = text.replace(token, "")
     if text in {"unknown", "unavailable", "none", ""}:
         return 0
     try:
@@ -121,10 +123,10 @@ def state_to_property(property_name: str, state: dict[str, Any]) -> dict[str, An
         scale = "%"
     elif property_name == "pm25":
         value = _numeric(raw_state)
-        scale = "μg/m3"
+        scale = "ug/m3"
     elif property_name == "pm10":
         value = _numeric(raw_state)
-        scale = "μg/m3"
+        scale = "ug/m3"
     elif property_name == "co2":
         value = _numeric(raw_state)
         scale = "ppm"
@@ -177,7 +179,11 @@ def resolve_service_call(device: DeviceConfig, request_name: str, payload: dict[
 
     if request_name == "SetBrightnessPercentageRequest" and device.type == "light":
         brightness = payload.get("brightness", {}).get("value", 0)
-        return ServiceCall(domain=domain, service="turn_on", data={"entity_id": device.entity_id, "brightness_pct": brightness})
+        return ServiceCall(
+            domain=domain,
+            service="turn_on",
+            data={"entity_id": device.entity_id, "brightness_pct": brightness},
+        )
 
     raise ValueError(f"unsupported request for device: {request_name}")
 
