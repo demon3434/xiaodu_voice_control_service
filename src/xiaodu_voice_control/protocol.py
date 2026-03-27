@@ -143,9 +143,9 @@ def state_to_property(property_name: str, state: dict[str, Any]) -> dict[str, An
 
 def build_discovery_appliance(device: DeviceConfig, state: dict[str, Any] | None = None) -> dict[str, Any]:
     properties = []
+    effective_state = state if state is not None else {"state": None, "attributes": {}}
     for prop in device.properties:
-        if state is not None:
-            properties.append(state_to_property(prop, state))
+        properties.append(state_to_property(prop, effective_state))
     return {
         "applianceId": device.appliance_id,
         "friendlyName": device.name,
