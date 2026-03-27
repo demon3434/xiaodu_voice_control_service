@@ -11,7 +11,6 @@ DEVICE_TYPE_MAP = {
     "switch": "SWITCH",
     "light": "LIGHT",
     "cover": "CURTAIN",
-    "sensor": "AIR_MONITOR",
     "fan": "FAN",
     "climate": "AIR_CONDITION",
 }
@@ -152,7 +151,7 @@ def build_discovery_appliance(device: DeviceConfig, state: dict[str, Any] | None
         "friendlyName": device.name,
         "friendlyDescription": device.name,
         "additionalApplianceDetails": {},
-        "applianceTypes": [DEVICE_TYPE_MAP.get(device.type, device.type.upper())],
+        "applianceTypes": [_resolve_appliance_type(device)],
         "isReachable": True,
         "manufacturerName": "Custom",
         "modelName": "Home Assistant",
@@ -192,3 +191,17 @@ def query_properties_for_request(device: DeviceConfig, request_name: str) -> lis
     if prop not in device.properties:
         raise ValueError(f"property not exposed: {prop}")
     return [prop]
+
+
+def _resolve_appliance_type(device: DeviceConfig) -> str:
+    if device.type != "sensor":
+        return DEVICE_TYPE_MAP.get(device.type, device.type.upper())
+
+    properties = set(device.properties)
+    if {"pm25", "pm10", "co2"} & properties:
+        return "AIR_PURIFIER"
+    if "brightness" in properties:
+        return "LIGHT"
+    if {"temperatureReading", "humidity"} & properties:
+        return "AIR_CONDITION"
+    return "SWITCH"

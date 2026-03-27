@@ -7,7 +7,7 @@ services:
     ports:
       - "8129:8129"
     environment:
-      TZ: Asia/Shanghai
+      - TZ=Asia/Shanghai
     env_file:
       - .env
     volumes:
