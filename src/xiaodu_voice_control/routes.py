@@ -267,11 +267,12 @@ def build_router(
     async def manage_save_config(request: Request) -> dict:
         payload = await request.json()
         saved = save_managed_env(settings, payload.get("env") or {})
+        asyncio.create_task(delayed_process_reload(settings))
         return {
             "status": "ok",
             "env": saved,
             "keys": key_status(settings),
-            "message": "已写入 service.env，点击“重新加载配置”后生效。",
+            "message": "已写入 /data/service.env，服务将在数秒内自动重新加载。若页面短暂断开，请稍候刷新。",
         }
 
     @router.post("/manage/api/keys/generate")

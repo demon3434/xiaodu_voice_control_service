@@ -40,7 +40,7 @@
       event.preventDefault();
       msg.textContent = '';
       submitBtn.disabled = true;
-      submitBtn.textContent = '正在授权，请稍候';
+      submitBtn.textContent = '正在授权，请稍候...';
       try {
         const data = new FormData(form);
         const response = await fetch(window.location.href, { method: 'POST', body: data });
