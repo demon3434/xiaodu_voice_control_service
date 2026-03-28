@@ -96,22 +96,6 @@ def _rounded_numeric(value: Any, digits: int = 1) -> int | float:
     return numeric
 
 
-def _fix_mojibake_text(value: Any) -> str:
-    text = str(value or "")
-    if not text:
-        return ""
-
-    # Recover common UTF-8 text that was previously decoded as latin-1/cp1252.
-    for encoding in ("latin-1", "cp1252"):
-        try:
-            repaired = text.encode(encoding).decode("utf-8")
-        except (UnicodeEncodeError, UnicodeDecodeError):
-            continue
-        if repaired != text and any("\u4e00" <= ch <= "\u9fff" for ch in repaired):
-            return repaired
-    return text
-
-
 def state_to_property(property_name: str, state: dict[str, Any]) -> dict[str, Any]:
     raw_state = state.get("state")
     attrs = state.get("attributes", {})
@@ -164,11 +148,10 @@ def build_discovery_appliance(device: DeviceConfig, state: dict[str, Any] | None
     effective_state = state if state is not None else {"state": None, "attributes": {}}
     for prop in device.properties:
         properties.append(state_to_property(prop, effective_state))
-    friendly_name = _fix_mojibake_text(device.name)
     return {
         "applianceId": device.appliance_id,
-        "friendlyName": friendly_name,
-        "friendlyDescription": friendly_name,
+        "friendlyName": device.name,
+        "friendlyDescription": device.name,
         "additionalApplianceDetails": {},
         "applianceTypes": [_resolve_appliance_type(device)],
         "isReachable": True,

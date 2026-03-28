@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>小度语音控制服务</title>
+  <title>&#23567;&#24230;&#35821;&#38899;&#25511;&#21046;&#26381;&#21153;</title>
   <style>
     :root {
       --bg: #f5f8fd;
@@ -15,6 +15,8 @@
       --primary: #1769e0;
       --success: #19a55a;
       --warning: #f2c766;
+      --warning-soft: #fff6d8;
+      --danger: #d14b39;
       --shadow: 0 16px 40px rgba(27, 51, 84, 0.08);
     }
     * { box-sizing: border-box; }
@@ -98,7 +100,7 @@
       margin-top: 8px;
     }
     .hint .warn {
-      color: #d14b39;
+      color: var(--danger);
       font-weight: 700;
     }
     input, textarea {
@@ -223,79 +225,79 @@
   <div class="wrap">
     <div class="hero">
       <div>
-        <h1>小度语音控制服务</h1>
-        <p>这里用于维护独立服务容器的核心运行参数，并生成小度云端同步所需的密钥。页面只保留常用配置项，其它固定默认值由程序自动处理，降低首次部署时的理解成本。</p>
+        <h1>&#23567;&#24230;&#35821;&#38899;&#25511;&#21046;&#26381;&#21153;</h1>
+        <p>&#36825;&#37324;&#29992;&#20110;&#32500;&#25252;&#29420;&#31435;&#26381;&#21153;&#23481;&#22120;&#30340;&#26680;&#24515;&#36816;&#34892;&#21442;&#25968;&#65292;&#24182;&#29983;&#25104;&#23567;&#24230;&#20113;&#31471;&#21516;&#27493;&#25152;&#38656;&#30340;&#23494;&#38053;&#12290;&#39029;&#38754;&#21482;&#20445;&#30041;&#24120;&#29992;&#37197;&#32622;&#39033;&#65292;&#20854;&#20182;&#22266;&#23450;&#40664;&#35748;&#20540;&#30001;&#31243;&#24207;&#33258;&#21160;&#22788;&#29702;&#65292;&#38477;&#20302;&#39318;&#27425;&#37096;&#32626;&#26102;&#30340;&#29702;&#35299;&#25104;&#26412;&#12290;</p>
       </div>
     </div>
 
     <div class="grid">
       <div class="card">
-        <h2>服务参数</h2>
-        <p class="section-note">优先填写这 5 项即可。保存后会写入 <span class="mono">/data/service.env</span>，并自动重新加载配置。若页面短暂断开，请稍候刷新，无需手动重启容器。</p>
+        <h2>&#26381;&#21153;&#21442;&#25968;</h2>
+        <p class="section-note">&#20248;&#20808;&#22635;&#20889;&#36825; 5 &#39033;&#21363;&#21487;&#12290;&#20445;&#23384;&#21518;&#20250;&#20889;&#20837; <span class="mono">/data/service.env</span>&#65292;&#28857;&#20987;&#8220;&#37325;&#26032;&#21152;&#36733;&#37197;&#32622;&#8221;&#21518;&#31435;&#21363;&#29983;&#25928;&#65292;&#26080;&#38656;&#25163;&#21160;&#37325;&#21551;&#23481;&#22120;&#12290;</p>
 
         <div class="field">
           <div class="field-head">
-            <label for="APP_BASE_URL">服务公网地址</label>
+            <label for="APP_BASE_URL">&#26381;&#21153;&#20844;&#32593;&#22320;&#22336;</label>
             <span class="env-key">APP_BASE_URL</span>
           </div>
-          <input id="APP_BASE_URL" placeholder="例如：https://ha.example.com:34343">
-          <div class="hint">小度平台从公网访问本服务时使用的地址，必须能从互联网访问到本容器。请填写完整协议头，通常为 <span class="mono">https://</span> 地址。</div>
+          <input id="APP_BASE_URL" placeholder="&#20363;&#22914;&#65306;https://ha.example.com:34343">
+          <div class="hint">&#23567;&#24230;&#24179;&#21488;&#20174;&#20844;&#32593;&#35775;&#38382;&#26412;&#26381;&#21153;&#26102;&#20351;&#29992;&#30340;&#22320;&#22336;&#65292;&#24517;&#39035;&#33021;&#20174;&#20114;&#32852;&#32593;&#35775;&#38382;&#21040;&#26412;&#23481;&#22120;&#12290;&#35831;&#22635;&#20889;&#23436;&#25972;&#21327;&#35758;&#22836;&#65292;&#36890;&#24120;&#20026; <span class="mono">https://</span> &#22320;&#22336;&#12290;</div>
         </div>
 
         <div class="field">
           <div class="field-head">
-            <label for="HA_BASE_URL">HA 内网地址</label>
+            <label for="HA_BASE_URL">HA &#20869;&#32593;&#22320;&#22336;</label>
             <span class="env-key">HA_BASE_URL</span>
           </div>
-          <input id="HA_BASE_URL" placeholder="例如：http://192.168.6.10:8123">
-          <div class="hint">服务容器访问 Home Assistant API 使用的地址。建议填写容器所在主机能直连的内网地址，通常比公网地址更稳定。</div>
+          <input id="HA_BASE_URL" placeholder="&#20363;&#22914;&#65306;http://192.168.6.10:8123">
+          <div class="hint">&#26381;&#21153;&#23481;&#22120;&#35775;&#38382; Home Assistant API &#20351;&#29992;&#30340;&#22320;&#22336;&#12290;&#24314;&#35758;&#22635;&#20889;&#23481;&#22120;&#25152;&#22312;&#20027;&#26426;&#33021;&#30452;&#36830;&#30340;&#20869;&#32593;&#22320;&#22336;&#65292;&#36890;&#24120;&#27604;&#20844;&#32593;&#22320;&#22336;&#26356;&#31283;&#23450;&#12290;</div>
         </div>
 
         <div class="field">
           <div class="field-head">
-            <label for="HA_REFRESH_TOKEN">HA 刷新令牌</label>
+            <label for="HA_REFRESH_TOKEN">HA &#21047;&#26032;&#20196;&#29260;</label>
             <span class="env-key">HA_REFRESH_TOKEN</span>
           </div>
-          <textarea id="HA_REFRESH_TOKEN" placeholder="粘贴 Home Assistant 刷新令牌。"></textarea>
-          <div class="hint">用于服务容器换取 Home Assistant 的访问令牌，从而控制设备。请粘贴完整字符串，不要换行。</div>
+          <textarea id="HA_REFRESH_TOKEN" placeholder="&#31896;&#36148; Home Assistant &#21047;&#26032;&#20196;&#29260;"></textarea>
+          <div class="hint">&#29992;&#20110;&#26381;&#21153;&#23481;&#22120;&#25442;&#21462; Home Assistant &#30340;&#35775;&#38382;&#20196;&#29260;&#65292;&#20174;&#32780;&#25511;&#21046;&#35774;&#22791;&#12290;&#35831;&#31896;&#36148;&#23436;&#25972;&#23383;&#31526;&#20018;&#65292;&#19981;&#35201;&#25442;&#34892;&#12290;</div>
         </div>
 
         <div class="field">
           <div class="field-head">
-            <label for="HA_CLIENT_ID">HA 客户端 ID</label>
+            <label for="HA_CLIENT_ID">HA &#23458;&#25143;&#31471; ID</label>
             <span class="env-key">HA_CLIENT_ID</span>
           </div>
-          <input id="HA_CLIENT_ID" placeholder="例如：https://xiaodu-dbp.baidu.com">
-          <div class="hint"><span class="warn">建议使用默认值</span>。当前推荐保持为 <span class="mono">https://xiaodu-dbp.baidu.com</span>，用于配合 HA 刷新令牌换取访问令牌。</div>
+          <input id="HA_CLIENT_ID" placeholder="&#20363;&#22914;&#65306;https://xiaodu-dbp.baidu.com">
+          <div class="hint"><span class="warn">&#24314;&#35758;&#20351;&#29992;&#40664;&#35748;&#20540;</span>&#12290;&#24403;&#21069;&#25512;&#33616;&#20445;&#25345;&#20026; <span class="mono">https://xiaodu-dbp.baidu.com</span>&#65292;&#29992;&#20110;&#37197;&#21512; HA &#21047;&#26032;&#20196;&#29260;&#25442;&#21462;&#35775;&#38382;&#20196;&#29260;&#12290;</div>
         </div>
 
         <div class="field">
           <div class="field-head">
-            <label for="INTERNAL_API_TOKEN">内部鉴权令牌</label>
+            <label for="INTERNAL_API_TOKEN">&#20869;&#37096;&#37492;&#26435;&#20196;&#29260;</label>
             <span class="env-key">INTERNAL_API_TOKEN</span>
           </div>
-          <textarea id="INTERNAL_API_TOKEN" placeholder="建议使用随机长字符串"></textarea>
-          <div class="hint">仅用于 HA 集成与本服务容器之间的内部接口鉴权，不填写给小度平台。建议使用随机长字符串，并与 HA 侧配置保持一致。</div>
+          <textarea id="INTERNAL_API_TOKEN" placeholder="&#24314;&#35758;&#20351;&#29992;&#38543;&#26426;&#38271;&#23383;&#31526;&#20018;"></textarea>
+          <div class="hint">&#20165;&#29992;&#20110; HA &#38598;&#25104;&#19982;&#26412;&#26381;&#21153;&#23481;&#22120;&#20043;&#38388;&#30340;&#20869;&#37096;&#25509;&#21475;&#37492;&#26435;&#65292;&#19981;&#22635;&#20889;&#32473;&#23567;&#24230;&#24179;&#21488;&#12290;&#24314;&#35758;&#20351;&#29992;&#38543;&#26426;&#38271;&#23383;&#31526;&#20018;&#65292;&#24182;&#19982; HA &#20391;&#37197;&#32622;&#20445;&#25345;&#19968;&#33268;&#12290;</div>
         </div>
 
         <div class="actions">
-          <button class="primary" onclick="saveConfig()">保存配置</button>
-          <button class="warning" onclick="reloadConfig()">重新加载配置</button>
+          <button class="primary" onclick="saveConfig()">&#20445;&#23384;&#37197;&#32622;</button>
+          <button class="warning" onclick="reloadConfig()">&#37325;&#26032;&#21152;&#36733;&#37197;&#32622;</button>
         </div>
-        <div id="configStatus" class="status">正在加载配置...</div>
+        <div id="configStatus" class="status">&#27491;&#22312;&#21152;&#36733;&#37197;&#32622;...</div>
       </div>
 
       <div class="card">
-        <h2>密钥与运行状态</h2>
-        <p class="section-note">首次部署时，如果 <span class="mono">/data/xiaodu_private_key.pem</span> 不存在，服务会自动生成。你也可以在这里手动重建。</p>
+        <h2>&#23494;&#38053;&#19982;&#36816;&#34892;&#29366;&#24577;</h2>
+        <p class="section-note">&#39318;&#27425;&#37096;&#32626;&#26102;&#65292;&#22914;&#26524; <span class="mono">/data/xiaodu_private_key.pem</span> &#19981;&#23384;&#22312;&#65292;&#26381;&#21153;&#20250;&#33258;&#21160;&#29983;&#25104;&#12290;&#20320;&#20063;&#21487;&#20197;&#22312;&#36825;&#37324;&#25163;&#21160;&#37325;&#24314;&#12290;</p>
 
         <div class="mini-grid">
           <div class="mini-card">
-            <div class="mini-label">设备数量</div>
+            <div class="mini-label">&#35774;&#22791;&#25968;&#37327;</div>
             <div id="deviceCount" class="mini-value">--</div>
           </div>
           <div class="mini-card">
-            <div class="mini-label">设备文件</div>
+            <div class="mini-label">&#35774;&#22791;&#25991;&#20214;</div>
             <div id="devicePath" class="mini-value mono">--</div>
           </div>
         </div>
@@ -303,34 +305,34 @@
         <div class="key-box">
           <div class="plain-block">
             <div class="plain-item">
-              <div class="plain-label">私钥路径</div>
+              <div class="plain-label">&#31169;&#38053;&#36335;&#24452;</div>
               <div id="private_key_path" class="plain-value mono">--</div>
             </div>
             <div class="plain-item">
-              <div class="plain-label">公钥路径</div>
+              <div class="plain-label">&#20844;&#38053;&#36335;&#24452;</div>
               <div id="public_key_path" class="plain-value mono">--</div>
             </div>
           </div>
           <div class="field">
             <div class="field-head">
-              <label>公钥内容</label>
+              <label>&#20844;&#38053;&#20869;&#23481;</label>
             </div>
             <textarea id="public_key_pem" class="mono" readonly></textarea>
-            <div class="hint">公钥可用于需要展示或复制的场景；服务运行真正依赖的是私钥文件。</div>
+            <div class="hint">&#20844;&#38053;&#21487;&#29992;&#20110;&#38656;&#35201;&#23637;&#31034;&#25110;&#22797;&#21046;&#30340;&#22330;&#26223;&#65307;&#26381;&#21153;&#36816;&#34892;&#30495;&#27491;&#20381;&#36182;&#30340;&#26159;&#31169;&#38053;&#25991;&#20214;&#12290;</div>
           </div>
           <div class="actions">
-            <button class="success" onclick="generateKeys(false)">生成密钥</button>
-            <button class="ghost" onclick="generateKeys(true)">重建密钥</button>
-            <button class="ghost" onclick="copyPublicKey()">复制公钥</button>
-            <button class="ghost" onclick="downloadPublicKey()">下载公钥</button>
+            <button class="success" onclick="generateKeys(false)">&#29983;&#25104;&#23494;&#38053;</button>
+            <button class="ghost" onclick="generateKeys(true)">&#37325;&#24314;&#23494;&#38053;</button>
+            <button class="ghost" onclick="copyPublicKey()">&#22797;&#21046;&#20844;&#38053;</button>
+            <button class="ghost" onclick="downloadPublicKey()">&#19979;&#36733;&#20844;&#38053;</button>
           </div>
         </div>
 
-        <div id="keyStatus" class="status">正在检查密钥状态...</div>
+        <div id="keyStatus" class="status">&#27491;&#22312;&#26816;&#26597;&#23494;&#38053;&#29366;&#24577;...</div>
 
         <div class="tip-list">
-          <div class="tip-item">固定默认值已从主表单移除，包括 <span class="mono">XIAODU_CLIENT_ID=dueros</span>、小度回调白名单和私钥默认路径，避免首次部署时看到过多不需要手改的参数。</div>
-          <div class="tip-item">如果你改动了 <span class="mono">service.env</span> 或密钥文件，可以点“重新加载配置”；若是通过本页面保存，服务会自动触发一次重新加载。</div>
+          <div class="tip-item">&#22266;&#23450;&#40664;&#35748;&#20540;&#24050;&#20174;&#20027;&#34920;&#21333;&#31227;&#38500;&#65292;&#21253;&#25324; <span class="mono">XIAODU_CLIENT_ID=dueros</span>&#12289;&#23567;&#24230;&#22238;&#35843;&#30333;&#21517;&#21333;&#21644;&#31169;&#38053;&#40664;&#35748;&#36335;&#24452;&#65292;&#36991;&#20813;&#39318;&#27425;&#37096;&#32626;&#26102;&#30475;&#21040;&#36807;&#22810;&#19981;&#38656;&#35201;&#25163;&#25913;&#30340;&#21442;&#25968;&#12290;</div>
+          <div class="tip-item">&#22914;&#26524;&#20320;&#25913;&#21160;&#20102; <span class="mono">service.env</span> &#25110;&#23494;&#38053;&#25991;&#20214;&#65292;&#35831;&#28857;&#20987;&#8220;&#37325;&#26032;&#21152;&#36733;&#37197;&#32622;&#8221;&#65292;&#26381;&#21153;&#20250;&#37325;&#26032;&#35835;&#21462;&#21442;&#25968;&#24182;&#31435;&#21363;&#29983;&#25928;&#12290;</div>
         </div>
       </div>
     </div>
@@ -381,7 +383,6 @@
       const data = await res.json();
       document.getElementById('configStatus').textContent = data.message || JSON.stringify(data, null, 2);
       renderKeyStatus(data.keys || {});
-      setTimeout(() => window.location.reload(), 2500);
     }
 
     async function generateKeys(force) {
