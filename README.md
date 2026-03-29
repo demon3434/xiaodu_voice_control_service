@@ -37,7 +37,7 @@ services:
       - HA_CONFIG_PATH=/ha_conf
     volumes:
       - ./data:/data
-      - /opt/docker/homeassistant/ha/config:/ha_conf
+      - /path/to/your/ha/config:/ha_conf
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
 ```
@@ -52,7 +52,7 @@ docker compose up -d
 
 - `./data:/data`
   持久化本服务的配置、密钥和运行数据
-- `/opt/docker/homeassistant/ha/config:/ha_conf`
+- `/path/to/your/ha/config:/ha_conf`
   把 HA 配置目录挂载进容器，便于管理页面读取 `.storage/auth`
 - `HA_CONFIG_PATH=/ha_conf`
   告诉程序去容器内哪个目录读取 HA 配置
@@ -86,7 +86,7 @@ services:
       - HA_CONFIG_PATH=/ha_conf
     volumes:
       - ./data:/data
-      - /opt/docker/homeassistant/ha/config:/ha_conf
+      - /path/to/your/ha/config:/ha_conf
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
 ```
@@ -109,7 +109,7 @@ docker run -d \
   -e TZ=Asia/Shanghai \
   -e HA_CONFIG_PATH=/ha_conf \
   -v $(pwd)/data:/data \
-  -v /opt/docker/homeassistant/ha/config:/ha_conf \
+  -v /path/to/your/ha/config:/ha_conf \
   -v /etc/localtime:/etc/localtime:ro \
   -v /etc/timezone:/etc/timezone:ro \
   demon3434/xiaodu_voice_control_service:latest
@@ -128,7 +128,7 @@ http://你的主机IP:8129/
 页面里主要配置这几项：
 
 - `HA_PUBLIC_BASE_URL`
-  填 Home Assistant 的公网 HTTPS 地址，例如 `https://ha.example.com:34343`
+  填 Home Assistant 的公网 HTTPS 地址，例如 `https://ha.example.com:port`
 - `HA_INTERNAL_BASE_URL`
   填服务容器访问 HA API 使用的内网地址，例如 `http://192.168.6.10:8123`
 - `HA_REFRESH_TOKEN`
@@ -141,7 +141,7 @@ http://你的主机IP:8129/
 有两种方式：
 
 1. 手工填写
-2. 从 HA 配置目录读取后，在下拉框中选择
+2. 从 HA 配置目录读取后，在下拉框中选择（前提是容器配置了 `HA_CONFIG_PATH` 参数）
 
 如果你已经像上面的示例一样挂载了：
 
