@@ -1,17 +1,15 @@
 services:
   xiaodu-voice-control-service:
-    build: .
-    image: xiaodu_voice_control_service
+    image: demon3434/xiaodu_voice_control_service:latest
     container_name: xiaodu-voice-control-service
     restart: unless-stopped
     ports:
       - "8129:8129"
     environment:
       - TZ=Asia/Shanghai
-    env_file:
-      - .env
+      - HA_CONFIG_PATH=/ha_conf
     volumes:
       - ./data:/data
-      - ./.env:/data/service.env
+      - /opt/docker/homeassistant/ha/config:/ha_conf
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro

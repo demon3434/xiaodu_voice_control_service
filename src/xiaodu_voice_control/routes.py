@@ -2,8 +2,10 @@ from __future__ import annotations
 
 import asyncio
 import base64
+import json
+from datetime import datetime
 from pathlib import Path
-from urllib.parse import urlencode
+from urllib.parse import urlparse
 
 import httpx
 from cryptography.hazmat.primitives import hashes, serialization
@@ -16,8 +18,15 @@ from .auth import validate_bind_user
 from .config import Settings
 from .device_registry import DeviceRegistry
 from .ha_client import HomeAssistantClient
-from .management import delayed_process_reload, generate_keypair, key_status, load_managed_env, save_managed_env
-from .models import DeviceConfig, DeviceConfigFile
+from .management import (
+    delayed_process_reload,
+    generate_keypair,
+    key_status,
+    load_managed_env,
+    save_managed_env,
+    suggested_ha_client_id,
+)
+from .models import DeviceConfig, DeviceConfigFile, HaAuthCandidate
 from .protocol import (
     build_discovery_appliance,
     build_response_header,
@@ -49,18 +58,119 @@ def _runtime_client_secret(settings: Settings, token_store: TokenStore) -> str:
     return str(token_store.get_service_config().get("xiaodu_client_secret") or settings.xiaodu_client_secret).strip()
 
 
+def _suggested_manage_client_id(ha_public_base_url: str) -> str:
+    return suggested_ha_client_id(ha_public_base_url)
+
+
 def _missing_runtime_fields(settings: Settings, token_store: TokenStore) -> list[str]:
     config = token_store.get_service_config()
     missing: list[str] = []
-    if not str(settings.ha_base_url or "").strip():
-        missing.append("HA_BASE_URL")
-    if not (str(settings.ha_access_token or "").strip() or (str(settings.ha_refresh_token or "").strip() and str(settings.ha_client_id or "").strip())):
-        missing.append("HA_ACCESS_TOKEN or HA_REFRESH_TOKEN+HA_CLIENT_ID")
-    if settings.auth_mode == "homeassistant" and not str(settings.app_base_url or "").strip():
-        missing.append("APP_BASE_URL")
+    if not str(settings.ha_internal_base_url or "").strip():
+        missing.append("HA_INTERNAL_BASE_URL")
+    if not (str(settings.ha_refresh_token or "").strip() and str(settings.ha_client_id or "").strip()):
+        missing.append("HA_REFRESH_TOKEN+HA_CLIENT_ID")
+    if settings.auth_mode == "homeassistant" and not str(settings.ha_public_base_url or "").strip():
+        missing.append("HA_PUBLIC_BASE_URL")
     if not _runtime_client_secret(settings, token_store):
         missing.append("xiaodu_client_secret(runtime)")
     return missing
+
+
+def _is_valid_ha_client_id(value: str) -> bool:
+    text = str(value or "").strip()
+    if not text:
+        return False
+    parsed = urlparse(text)
+    return parsed.scheme in {"http", "https"} and bool(parsed.netloc)
+
+
+def _is_valid_http_base_url(value: str) -> bool:
+    text = str(value or "").strip()
+    if not text:
+        return False
+    parsed = urlparse(text)
+    return parsed.scheme in {"http", "https"} and bool(parsed.netloc)
+
+
+def _mask_secret(value: str, keep: int = 6) -> str:
+    text = str(value or "").strip()
+    if len(text) <= keep * 2:
+        return text
+    return f"{text[:keep]}...{text[-keep:]}"
+
+
+def _normalize_ha_time(value: str) -> str:
+    text = str(value or "").strip()
+    if not text or text.lower() == "none":
+        return ""
+    try:
+        normalized = text.replace("Z", "+00:00")
+        dt = datetime.fromisoformat(normalized)
+        return dt.strftime("%Y-%m-%d %H:%M:%S")
+    except Exception:
+        return text
+
+
+def _load_ha_auth_candidates(settings: Settings, ha_config_path: str | None = None) -> tuple[str, list[HaAuthCandidate]]:
+    resolved_path = str(ha_config_path if ha_config_path is not None else settings.ha_config_path).strip()
+    config_root = Path(resolved_path)
+    if not resolved_path:
+        raise RuntimeError("请先填写 HA_CONFIG_PATH。")
+    auth_path = config_root / ".storage" / "auth"
+    if not auth_path.exists():
+        raise RuntimeError(f"未找到 HA 授权文件：{auth_path}")
+    try:
+        payload = json.loads(auth_path.read_text(encoding="utf-8-sig"))
+    except Exception as exc:
+        raise RuntimeError(f"读取 HA 授权文件失败：{exc}") from exc
+
+    data = payload.get("data") or {}
+    users = {str(item.get("id", "")).strip(): item for item in (data.get("users") or []) if isinstance(item, dict)}
+    credentials = {str(item.get("id", "")).strip(): item for item in (data.get("credentials") or []) if isinstance(item, dict)}
+
+    candidates: list[HaAuthCandidate] = []
+    for item in data.get("refresh_tokens") or []:
+        if not isinstance(item, dict):
+            continue
+        token = str(item.get("token", "")).strip()
+        client_id = str(item.get("client_id", "")).strip()
+        token_type = str(item.get("token_type", "")).strip()
+        normalized_client_id = client_id.lower()
+        if not token or not client_id or normalized_client_id == "none":
+            continue
+        if token_type and token_type.lower() != "normal":
+            continue
+        user_id = str(item.get("user_id", "")).strip()
+        credential_id = str(item.get("credential_id", "")).strip()
+        user = users.get(user_id, {})
+        credential = credentials.get(credential_id, {})
+        user_name = str(user.get("name", "") or user.get("username", "") or credential.get("auth_provider_id", "")).strip()
+        if user_name.lower() == "none":
+            user_name = ""
+        last_used_at = _normalize_ha_time(item.get("last_used_at", ""))
+        created_at = _normalize_ha_time(item.get("created_at", ""))
+        title_parts = []
+        title_parts.append(client_id)
+        if user_name:
+            title_parts.append(f"用户: {user_name}")
+        if last_used_at:
+            title_parts.append(f"最近使用: {last_used_at}")
+        if not title_parts:
+            title_parts.append(_mask_secret(token))
+        candidates.append(
+            HaAuthCandidate(
+                token=token,
+                client_id=client_id,
+                title=" | ".join(title_parts),
+                user_label=user_name,
+                last_used_at=last_used_at,
+                created_at=created_at,
+                token_type=token_type,
+            )
+        )
+
+    candidates.sort(key=lambda item: (item.last_used_at or item.created_at or "", item.client_id), reverse=True)
+    return str(auth_path), candidates
 
 
 def _token_response(record, expires_in: int) -> dict:
@@ -243,9 +353,26 @@ def build_router(
 
     @router.get("/manage/api/config")
     async def manage_get_config() -> dict:
+        env = load_managed_env(settings)
+        env["HA_CLIENT_ID"] = env.get("HA_CLIENT_ID") or _suggested_manage_client_id(env.get("HA_PUBLIC_BASE_URL", ""))
+        auth_candidates_summary = {
+            "configured": bool(str(env.get("HA_CONFIG_PATH", "")).strip()),
+            "count": 0,
+            "path": "",
+            "message": "",
+        }
+        if auth_candidates_summary["configured"]:
+            try:
+                auth_path, candidates = _load_ha_auth_candidates(settings)
+                auth_candidates_summary["count"] = len(candidates)
+                auth_candidates_summary["path"] = auth_path
+                auth_candidates_summary["message"] = f"已找到 {len(candidates)} 条可选授权。"
+            except Exception as exc:
+                auth_candidates_summary["message"] = str(exc)
         return {
-            "env": load_managed_env(settings),
+            "env": env,
             "keys": key_status(settings),
+            "ha_auth_candidates_summary": auth_candidates_summary,
             "devices": {
                 "count": len(registry.list_devices()),
                 "path": settings.device_config_path,
@@ -266,12 +393,40 @@ def build_router(
     @router.post("/manage/api/config")
     async def manage_save_config(request: Request) -> dict:
         payload = await request.json()
-        saved = save_managed_env(settings, payload.get("env") or {})
+        updates = payload.get("env") or {}
+        updates["HA_CLIENT_ID"] = str(updates.get("HA_CLIENT_ID", "")).strip() or _suggested_manage_client_id(
+            str(updates.get("HA_PUBLIC_BASE_URL", "")).strip() or settings.ha_public_base_url
+        )
+        saved = save_managed_env(settings, updates)
         return {
             "status": "ok",
             "env": saved,
             "keys": key_status(settings),
             "message": "已写入 service.env，点击“重新加载配置”后生效。",
+        }
+
+    @router.post("/manage/api/ha-auth/candidates")
+    async def manage_list_ha_auth_candidates(request: Request) -> dict:
+        payload = await request.json()
+        env = payload.get("env") or {}
+        auth_path, candidates = _load_ha_auth_candidates(settings, str(env.get("HA_CONFIG_PATH", "")).strip() or None)
+        return {
+            "status": "ok",
+            "path": auth_path,
+            "count": len(candidates),
+            "candidates": [
+                {
+                    "token": item.token,
+                    "token_masked": _mask_secret(item.token),
+                    "client_id": item.client_id,
+                    "title": item.title,
+                    "user_label": item.user_label,
+                    "last_used_at": item.last_used_at,
+                    "created_at": item.created_at,
+                    "token_type": item.token_type,
+                }
+                for item in candidates
+            ],
         }
 
     @router.post("/manage/api/keys/generate")
@@ -283,7 +438,7 @@ def build_router(
     @router.post("/manage/api/reload")
     async def manage_reload() -> dict:
         asyncio.create_task(delayed_process_reload(settings))
-        return {"status": "ok", "message": "服务正在重新加载配置，新的 service.env 和密钥将立即生效。"}
+        return {"status": "ok", "message": "服务正在重新加载配置，新的 service.env 将很快生效。"}
 
     @router.get("/devices")
     async def list_devices(x_internal_token: str | None = Header(default=None)) -> dict:
@@ -410,7 +565,7 @@ def build_router(
         except RuntimeError as exc:
             return {"code": "error", "Msg": str(exc)}
         except Exception as exc:  # pragma: no cover
-            return {"code": "error", "Msg": f"授权服务异常: {exc}"}
+            return {"code": "error", "Msg": f"闁瑰搫鐗婂鍫ュ嫉瀹ュ懎顫ょ€殿喖鍊搁悥? {exc}"}
 
         code = token_store.issue_authorization_code(
             subject=bound_user.subject,
@@ -422,7 +577,7 @@ def build_router(
         if state:
             query["state"] = state
         location = redirect_uri + ("&" if "?" in redirect_uri else "?") + urlencode(query)
-        return {"code": "ok", "Msg": "成功授权", "data": {"location": location}}
+        return {"code": "ok", "Msg": "闁瑰瓨鍔曟慨娑㈠箳閸喐缍€", "data": {"location": location}}
 
     @router.post("/xiaoduvc/auth/token")
     @router.post("/oauth/token")

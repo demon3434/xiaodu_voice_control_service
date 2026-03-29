@@ -59,7 +59,7 @@ async def validate_bind_user(
 
     if settings.auth_mode == "homeassistant":
         try:
-            ok = await ha_client.validate_user_credentials(username, password, settings.app_base_url)
+            ok = await ha_client.validate_user_credentials(username, password, settings.ha_public_base_url)
         except httpx.HTTPError as exc:
             raise RuntimeError(f"Home Assistant 登录请求失败: {exc}") from exc
         if not ok:

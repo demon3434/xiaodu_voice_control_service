@@ -10,19 +10,17 @@ from .config import Settings
 class HomeAssistantClient:
     def __init__(self, settings: Settings) -> None:
         self._settings = settings
-        self._access_token = settings.ha_access_token
+        self._access_token = ""
 
     def _base_url(self) -> str:
-        base_url = str(self._settings.ha_base_url or "").rstrip("/")
+        base_url = str(self._settings.ha_internal_base_url or "").rstrip("/")
         if not base_url:
-            raise RuntimeError("HA_BASE_URL is not configured")
+            raise RuntimeError("HA_INTERNAL_BASE_URL is not configured")
         return base_url
 
     async def _ensure_access_token(self) -> str:
-        if self._access_token:
-            return self._access_token
         if not self._settings.ha_refresh_token or not self._settings.ha_client_id:
-            raise RuntimeError("HA access token or refresh token/client id is required")
+            raise RuntimeError("HA_REFRESH_TOKEN and HA_CLIENT_ID are required")
         base_url = self._base_url()
         async with httpx.AsyncClient(verify=self._settings.ha_verify_ssl, timeout=10.0) as client:
             response = await client.post(
@@ -68,14 +66,14 @@ class HomeAssistantClient:
             response.raise_for_status()
             return response.json()
 
-    async def validate_user_credentials(self, username: str, password: str, app_base_url: str) -> bool:
+    async def validate_user_credentials(self, username: str, password: str, ha_public_base_url: str) -> bool:
         base_url = self._base_url()
-        if not app_base_url:
-            raise RuntimeError("APP_BASE_URL is not configured")
+        if not ha_public_base_url:
+            raise RuntimeError("HA_PUBLIC_BASE_URL is not configured")
         login_flow_payload = {
-            "client_id": app_base_url,
+            "client_id": ha_public_base_url,
             "handler": ["homeassistant", None],
-            "redirect_uri": app_base_url + "/auth/callback",
+            "redirect_uri": ha_public_base_url + "/auth/callback",
             "type": "authorize",
         }
         async with httpx.AsyncClient(verify=self._settings.ha_verify_ssl, timeout=10.0) as client:
@@ -92,7 +90,7 @@ class HomeAssistantClient:
             if not flow_id:
                 return False
             login_payload = {
-                "client_id": app_base_url,
+                "client_id": ha_public_base_url,
                 "username": username,
                 "password": password,
             }

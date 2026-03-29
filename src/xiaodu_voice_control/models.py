@@ -73,3 +73,13 @@ class HaState(BaseModel):
     entity_id: str
     state: str
     attributes: dict[str, Any] = Field(default_factory=dict)
+
+
+class HaAuthCandidate(BaseModel):
+    token: str
+    client_id: str
+    title: str
+    user_label: str = ""
+    last_used_at: str = ""
+    created_at: str = ""
+    token_type: str = ""
