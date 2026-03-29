@@ -146,7 +146,7 @@ http://你的主机IP:8129/
 如果你已经像上面的示例一样挂载了：
 
 ```yaml
-- /opt/docker/homeassistant/ha/config:/ha_conf
+- /path/to/your/ha/config:/ha_conf
 ```
 
 并且设置了：
