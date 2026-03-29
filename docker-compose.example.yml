@@ -10,6 +10,6 @@ services:
       - HA_CONFIG_PATH=/ha_conf
     volumes:
       - ./data:/data
-      - /path/to/homeassistant/config:/ha_conf
+      - /path/to/your/ha/config:/ha_conf
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
