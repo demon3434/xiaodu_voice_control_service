@@ -5,7 +5,7 @@ import base64
 import json
 from datetime import datetime
 from pathlib import Path
-from urllib.parse import urlparse
+from urllib.parse import urlencode, urlparse
 
 import httpx
 from cryptography.hazmat.primitives import hashes, serialization
